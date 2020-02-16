@@ -14,3 +14,5 @@ Tf_Test is not really a test, but an experiment. It encrypts certain blocks and 
 TF_Crypt is a command-line program for encrypting and decrypting files. It also makes use of unchecked conversion and needs modification to work correctly on big-endian platforms. TF_Crypt uses Password_Line.
 
 Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has only been tested on Linus.
+
+Only Threefish is licensed under the BSD 3-Clause license. Tf_Test and TF_Crypt are GPL-3; Password_Line is GMGPL.
