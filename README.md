@@ -5,13 +5,11 @@ This is an Ada implementation of Threefixh-256 directly from the specification i
 
 Test cases specifically for Threefish are at https://sites.google.com/site/bartoszmalkowski/threefish and https://github.com/bmalkow/java-bc-threefish.
 
-This version uses unchecked conversion to convert between arrays of bytes (Unsigned_8) and words (Unsigned_64) and arrays of words, so it is only correct on little-endian platforms. Endian-aware conversion functions are needed to make this correct on all platforms.
-
 Threefish implements the encryption and decryption algorithms.
 
 Tf_Test runs the test cases for Threefish-256 successfully (on a little-endian machine). It also encrypts certain blocks and presents the encrypted blocks, and shows that they decrypt correctly. Tf_Test uses PragmARC.Images from https://github.com/jrcarter/PragmARC.
 
-TF_Crypt is a command-line program for encrypting and decrypting files. It also makes use of unchecked conversion and needs modification to work correctly on big-endian platforms. TF_Crypt uses Password_Line.
+TF_Crypt is a command-line program for encrypting and decrypting files. TF_Crypt uses Password_Line.
 
 Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has only been tested on Linus.
 
