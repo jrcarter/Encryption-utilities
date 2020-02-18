@@ -6,32 +6,51 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Sequential_IO;
 with Ada.Text_IO;
-with Ada.Unchecked_Conversion;
 with Password_Line;
+with Ada.Unchecked_Conversion;
 with Threefish;
 
 procedure TF_Crypt is
-   package Word_IO is new Ada.Sequential_IO (Element_Type => Threefish.Word);
    package Byte_IO is new Ada.Sequential_IO (Element_Type => Threefish.Byte);
 
    Bytes_Per_Block  : constant := 32;
    Bytes_Per_Couple : constant := 16;
 
-   subtype Block_As_Bytes is Threefish.Byte_List (1 .. Bytes_Per_Block);
+   subtype Block_As_Bytes is Threefish.Block_As_Bytes;
 
-   function To_Block is new Ada.Unchecked_Conversion (Source => Block_As_Bytes, Target => Threefish.Block);
-   function To_Bytes is new Ada.Unchecked_Conversion (Source => Threefish.Block, Target => Block_As_Bytes);
+   subtype Block_As_String  is String (1 .. Bytes_Per_Block);
+   subtype Couple_As_String is String (1 .. Bytes_Per_Couple);
 
-   subtype Block_As_String is String (1 .. Bytes_Per_Block);
-   subtype Couple_As_String is STring (1 .. Bytes_Per_Couple);
-
-   function To_Block is new Ada.Unchecked_Conversion (Source => Block_As_String, Target => Threefish.Block);
-   function To_Couple is new Ada.Unchecked_Conversion (Source => Couple_As_String, Target => Threefish.Couple);
+   function To_Block  (Source : Block_As_String)  return Threefish.Block;
+   function To_Couple (Source : Couple_As_String) return Threefish.Couple;
 
    procedure Usage; -- Displays usage instructions
 
    procedure Encrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String); -- Encrypts Name using KS
    procedure Decrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String); -- Decrypts Name using KS
+
+   function To_Block  (Source : Block_As_String)  return Threefish.Block is
+      function To_List is new Ada.Unchecked_Conversion (Source => Block_As_String, Target => Block_As_Bytes);
+
+      List : constant Block_As_Bytes := To_List (Source);
+   begin -- To_Block
+      return Threefish.Block_From_Bytes (List);
+   end To_Block;
+
+   function To_Couple (Source : Couple_As_String) return Threefish.Couple is
+      subtype Couple_As_Bytes is Threefish.Byte_List (1 .. Source'Length);
+
+      function To_List is new Ada.Unchecked_Conversion (Source => Couple_As_String, Target => Couple_As_Bytes);
+
+      List : constant Couple_As_Bytes := To_List (Source);
+
+      Result : Threefish.Couple;
+   begin -- To_Couple
+      Result (Result'First) := Threefish.Word_From_Bytes (List (List'First .. List'First + Threefish.Word_As_Bytes'Length - 1) );
+      Result (Result'Last)  := Threefish.Word_From_Bytes (List (List'First + Threefish.Word_As_Bytes'Length .. List'Last) );
+
+      return Result;
+   end To_Couple;
 
    procedure Usage is
       -- Empty
@@ -49,13 +68,18 @@ procedure TF_Crypt is
 
    procedure Encrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String) is
       Input      : Byte_IO.File_Type;
-      Output     : Word_IO.File_Type;
+      Output     : Byte_IO.File_Type;
+      Length     : Threefish.Word_As_Bytes;
       Byte_Block : Block_As_Bytes;
       Word_Block : Threefish.Block;
    begin -- Encrypt
       Byte_IO.Open (File => Input, Mode => Byte_IO.In_File, Name => Name);
-      Word_IO.Create (File => Output, Name => Name & ".tfe");
-      Word_IO.Write (File => Output, Item => Threefish.Word (Ada.Directories.Size (Name) ) );
+      Byte_IO.Create (File => Output, Name => Name & ".tfe");
+      Length := Threefish.Bytes_From_Word (Threefish.Word (Ada.Directories.Size (Name) ) );
+
+      Write_Length : for I in Length'Range loop
+         Byte_IO.Write (File => Output, Item => Length (I) );
+      end loop Write_Length;
 
       All_Blocks : loop
          exit All_Blocks when Byte_IO.End_Of_File (Input);
@@ -68,21 +92,23 @@ procedure TF_Crypt is
             Byte_IO.Read (File => Input, Item => Byte_Block (I) );
          end loop One_Block;
 
-         Word_Block := To_Block (Byte_Block);
+         Word_Block := Threefish.Block_From_Bytes (Byte_Block);
          Threefish.Encrypt (Key_Schedule => KS, Text => Word_Block);
+         Byte_Block := Threefish.Bytes_From_Block (Word_Block);
 
-         Write_Block : for I in Word_Block'Range loop
-            Word_IO.Write (File => Output, Item => Word_Block (I) );
+         Write_Block : for I in Byte_Block'Range loop
+            Byte_IO.Write (File => Output, Item => Byte_Block (I) );
          end loop Write_Block;
       end loop All_Blocks;
 
       Byte_IO.Close (File => Input);
-      Word_IO.Close (File => Output);
+      Byte_IO.Close (File => Output);
    end Encrypt;
 
    procedure Decrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String) is
-      Input      : Word_IO.File_Type;
+      Input      : Byte_IO.File_Type;
       Output     : Byte_IO.File_Type;
+      Len_Bytes  : Threefish.Word_As_Bytes;
       Length     : Threefish.Word;
       Count      : Threefish.Word := 0;
       Byte_Block : Block_As_Bytes;
@@ -90,7 +116,7 @@ procedure TF_Crypt is
 
       use type Threefish.Word;
    begin -- Decrypt
-      Word_IO.Open (File => Input, Mode => Word_IO.In_File, Name => Name);
+      Byte_IO.Open (File => Input, Mode => Byte_IO.In_File, Name => Name);
 
       if Name'Length > 4 and then Name (Name'Last - 3 .. Name'Last) = ".tfe" then
          Byte_IO.Create (File => Output, Name => Name (Name'First .. Name'Last - 4) );
@@ -98,17 +124,22 @@ procedure TF_Crypt is
          Byte_IO.Create (File => Output, Name => Name & ".tfd");
       end if;
 
-      Word_IO.Read (File => Input, Item => Length);
+      Read_Length : for I in Len_Bytes'Range loop
+         Byte_IO.Read (File => Input, Item => Len_Bytes (I) );
+      end loop Read_Length;
+
+      Length := Threefish.Word_From_Bytes (Len_Bytes);
 
       All_Blocks : loop
-         exit All_Blocks when Word_IO.End_Of_File (Input);
+         exit All_Blocks when Byte_IO.End_Of_File (Input);
 
-         Read_Block : for I in Word_Block'Range loop
-            Word_IO.Read (File => Input, Item => Word_Block (I) );
+         Read_Block : for I in Byte_Block'Range loop
+            Byte_IO.Read (File => Input, Item => Byte_Block (I) );
          end loop Read_Block;
 
+         Word_Block := Threefish.Block_From_Bytes (Byte_Block);
          Threefish.Decrypt (Key_Schedule => KS, Text => Word_Block);
-         Byte_Block := To_Bytes (Word_Block);
+         Byte_Block := Threefish.Bytes_From_Block (Word_Block);
 
          Write_Bytes : for I in Byte_Block'Range loop
             exit Write_Bytes when Count >= Length;
@@ -118,7 +149,7 @@ procedure TF_Crypt is
          end loop Write_Bytes;
       end loop All_Blocks;
 
-      Word_IO.Close (File => Input);
+      Byte_IO.Close (File => Input);
       Byte_IO.Close (File => Output);
    end Decrypt;
 

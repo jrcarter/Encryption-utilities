@@ -3,6 +3,7 @@
 -- Released under the terms of the BSD 3-Clause license; see https://opensource.org/licenses
 
 with Ada.Unchecked_Conversion;
+with System;
 
 package body Threefish is
    use type Word;
@@ -115,11 +116,6 @@ package body Threefish is
 
    Bytes_Per_Block : constant := 32;
 
-   subtype Block_As_Bytes is Byte_List (1 .. Bytes_Per_Block);
-
-   function To_Bytes is new Ada.Unchecked_Conversion (Source => Block, Target => Block_As_Bytes);
-   function To_Block is new Ada.Unchecked_Conversion (Source => Block_As_Bytes, Target => Block);
-
    function Encrypt (Key_Schedule : Key_Schedule_Handle; Text : Byte_List) return Block_List is
       Num_Blocks : constant Natural := (Text'Length + Bytes_Per_Block - 1) / Bytes_Per_Block;
 
@@ -129,9 +125,9 @@ package body Threefish is
    begin -- Encrypt
       All_Blocks : for I in Result'Range loop
          if Start + Bytes_Per_Block - 1 > Text'Last then
-            Slice := To_Block (Text (Start .. Text'Last) & (Text'Last + 1 .. Start + Bytes_Per_Block - 1 => 0) );
+            Slice := Block_From_Bytes (Text (Start .. Text'Last) & (Text'Last + 1 .. Start + Bytes_Per_Block - 1 => 0) );
          else
-            Slice := To_Block (Text (Start .. Start + Bytes_Per_Block - 1) );
+            Slice := Block_From_Bytes (Text (Start .. Start + Bytes_Per_Block - 1) );
          end if;
 
          Start := Start + Bytes_Per_Block;
@@ -152,12 +148,65 @@ package body Threefish is
       All_Blocks : for I in Text'Range loop
          Slice := Text (I);
          Decrypt (Key_Schedule => Key_Schedule, Text => Slice);
-         Result (Start .. Start + Bytes_Per_Block - 1) := To_Bytes (Slice);
+         Result (Start .. Start + Bytes_Per_Block - 1) := Bytes_From_Block (Slice);
          Start := Start + Bytes_Per_Block;
       end loop All_Blocks;
 
       return Result;
    end Decrypt;
+
+   use type System.Bit_Order;
+
+   procedure Reverse_Bytes (List : in out Word_As_Bytes);
+   -- Reverses the bytes of List
+
+   function Word_From_Bytes (List : Word_As_Bytes) return Word is
+      function To_Word is new Ada.Unchecked_Conversion (Source => Word_As_Bytes, Target => Word);
+
+      Local : Word_As_Bytes := List;
+   begin -- Word_From_Bytes
+      if System.Default_Bit_Order = System.High_Order_First then
+         Reverse_Bytes (List => Local);
+      end if;
+
+      return To_Word (Local);
+   end Word_From_Bytes;
+
+   function Bytes_From_Word (Value : Word) return Word_As_Bytes is
+      function To_Bytes is new Ada.Unchecked_Conversion (Source => Word, Target => Word_As_Bytes);
+
+      Result : Word_As_Bytes := To_Bytes (Value);
+   begin -- Bytes_From_Word
+      if System.Default_Bit_Order = System.High_Order_First then
+         Reverse_Bytes (List => Result);
+      end if;
+
+      return Result;
+   end Bytes_From_Word;
+
+   function Block_From_Bytes (List : Block_As_Bytes) return Block is
+      Result : Block;
+      Start  : Positive := List'First;
+   begin -- Block_From_Bytes
+      Convert : for I in Result'Range loop
+         Result (I) := Word_From_Bytes (List (Start .. Start + Word_As_Bytes'Length - 1) );
+         Start := Start + Word_As_Bytes'Length;
+      end loop Convert;
+
+      return Result;
+   end Block_From_Bytes;
+
+   function Bytes_From_Block (Value : Block) return Block_As_Bytes is
+      Result : Block_As_Bytes;
+      Start  : Positive := Result'First;
+   begin -- Bytes_From_Block
+      Convert : for I in Value'Range loop
+         Result (Start .. Start + Word_As_Bytes'Length - 1) := Bytes_From_Word (Value (I) );
+         Start := Start + Word_As_Bytes'Length;
+      end loop Convert;
+
+      return Result;
+   end Bytes_From_Block;
 
    procedure Permute (Text : in out Block) is
       Temp : constant Word := Text (1);
@@ -165,4 +214,23 @@ package body Threefish is
       Text (1) := Text (3);
       Text (3) := Temp;
    end Permute;
+
+   procedure Reverse_Bytes (List : in out Word_As_Bytes) is
+      procedure Swap (Left : in out Byte; Right : in out Byte);
+      -- Swaps Left and Right
+
+      procedure Swap (Left : in out Byte; Right : in out Byte) is
+         Temp : constant Byte := Left;
+      begin -- Swap
+         Left := Right;
+         Right := Temp;
+      end Swap;
+
+      Last : Natural := List'Last;
+   begin -- Reverse_Bytes
+      Swap_All : for I in List'First .. Last / 2 loop
+         Swap (Left => List (I), Right => List (Last) );
+         Last := Last - 1;
+      end loop Swap_All;
+   end Reverse_Bytes;
 end Threefish;

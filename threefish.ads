@@ -32,16 +32,22 @@ package Threefish is
    type Block_List is array (Positive range <>) of Block;
 
    function Encrypt (Key_Schedule : Key_Schedule_Handle; Text : Byte_List) return Block_List;
-   -- Pads Text to a multiple of 32 bytes with zeros, then converts 32-byte slices using Key_Schedule
+   -- Pads Text to a multiple of 32 bytes with zeros, then converts 32-byte slices using Block_From_Bytes and Key_Schedule
 
    function Decrypt (Key_Schedule : Key_Schedule_Handle; Text : Block_List) return Byte_List;
-   -- Decrypts the blocks of Text and converts the results to a Byte_List
+   -- Decrypts the blocks of Text and converts the results to a Byte_List using Bytes_From_Block
    -- Results includes any padding added by Encrypt
 
-   -- En- & Decrypt for Byte_Lists use unchecked conversion to convert between blocks of 32 Bytes and Block,
-   -- so en- & decryption need to be done on machines with the same endianness
-   -- Threefish mandates little-endian conversions between 8-Byte blocks and Word; an endian-aware conversion is needed to be
-   -- compliant and portable
+   subtype Word_As_Bytes  is Byte_List (1 ..  8); -- 1 => LSB, 8 => MSB
+   subtype Block_As_Bytes is Byte_List (1 .. 32); -- 4 consecutive Word_As_Bytes
+
+   function Word_From_Bytes (List : Word_As_Bytes) return Word;
+   function Bytes_From_Word (Value : Word) return Word_As_Bytes;
+   -- Endian-independent conversions
+
+   function Block_From_Bytes (List : Block_As_Bytes) return Block;
+   function Bytes_From_Block (Value : Block) return Block_As_Bytes;
+   -- Endian-independent conversion using Word_From_Bytes and Bytes_From_Word
 private -- Threefish
    Num_Rounds : constant := 72;
 
