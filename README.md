@@ -11,6 +11,6 @@ Tf_Test runs the test cases for Threefish-256 successfully (on a little-endian m
 
 TF_Crypt is a command-line program for encrypting and decrypting files. TF_Crypt uses Password_Line.
 
-Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has only been tested on Linus.
+Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has only been tested on Linux.
 
 Only Threefish is licensed under the BSD 3-Clause license. Tf_Test and TF_Crypt are GPL-3; Password_Line is GMGPL.
