@@ -10,17 +10,36 @@ procedure Tf_Test is
    Key1   : constant Threefish.Block  := (others => 0);
    Tweak1 : constant Threefish.Couple := (others => 0);
    In1    : constant Threefish.Block  := (others => 0);
-   Out1   : constant Threefish.Block  := (0 => 16#94EEEA8B1F2ADA84#, 1 => 16#ADF103313EAE6670#,
-                                          2 => 16#952419A1F4B16D53#, 3 => 16#D83F13E63C9F6B11#);
-   Key2   : constant Threefish.Block  := (0 => 16#1716151413121110#, 1 => 16#1f1e1d1c1b1a1918#,
-                                          2 => 16#2726252423222120#, 3 => 16#2f2e2d2c2b2a2928#);
-   Tweak2 : constant Threefish.Couple := (0 => 16#0706050403020100#, 1 => 16#0f0e0d0c0b0a0908#);
-   In2    : constant Threefish.Block  := (0 => 16#f8f9fafbfcfdfeff#, 1 => 16#f0f1f2f3f4f5f6f7#,
-                                          2 => 16#e8e9eaebecedeeef#, 3 => 16#e0e1e2e3e4e5e6e7#);
-   Out2   : constant Threefish.Block  := (0 => 16#df8fea0eff91d0e0#, 1 => 16#d50ad82ee69281c9#,
-                                          2 => 16#76f48d58085d869d#, 3 => 16#df975e95b5567065#);
-   Key3   : constant Threefish.Block  := (0 => 1, 1 => 2, 2 => 4, 3 => 8);
-   Tweak3 : constant Threefish.Couple := (0 => 16, 1 => 32);
+   Out1   : constant Threefish.Block  := -- 84da2a1f8beaee947066ae3e3103f1ad536db1f4a1192495116b9f3ce6133fd8
+      Threefish.Block_From_Bytes ( (16#84#, 16#da#, 16#2a#, 16#1f#, 16#8b#, 16#ea#, 16#ee#, 16#94#,
+                                    16#70#, 16#66#, 16#ae#, 16#3e#, 16#31#, 16#03#, 16#f1#, 16#ad#,
+                                    16#53#, 16#6d#, 16#b1#, 16#f4#, 16#a1#, 16#19#, 16#24#, 16#95#,
+                                    16#11#, 16#6b#, 16#9f#, 16#3c#, 16#e6#, 16#13#, 16#3f#, 16#d8#) );
+--     (16#94EEEA8B1F2ADA84#, 16#ADF103313EAE6670#, 16#952419A1F4B16D53#, 16#D83F13E63C9F6B11#);
+   Key2   : constant Threefish.Block  := -- 101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f
+      Threefish.Block_From_Bytes ( (16#10#, 16#11#, 16#12#, 16#13#, 16#14#, 16#15#, 16#16#, 16#17#,
+                                    16#18#, 16#19#, 16#1a#, 16#1b#, 16#1c#, 16#1d#, 16#1e#, 16#1f#,
+                                    16#20#, 16#21#, 16#22#, 16#23#, 16#24#, 16#25#, 16#26#, 16#27#,
+                                    16#28#, 16#29#, 16#2a#, 16#2b#, 16#2c#, 16#2d#, 16#2e#, 16#2f#) );
+--     (16#1716151413121110#, 16#1f1e1d1c1b1a1918#, 16#2726252423222120#, 16#2f2e2d2c2b2a2928#);
+   Tweak2 : constant Threefish.Couple := -- 000102030405060708090a0b0c0d0e0f
+      (Threefish.Word_From_Bytes ( (16#00#, 16#01#, 16#02#, 16#03#, 16#04#, 16#05#, 16#06#, 16#07#) ),
+       Threefish.Word_From_Bytes ( (16#08#, 16#09#, 16#0a#, 16#0b#, 16#0c#, 16#0d#, 16#0e#, 16#0f#) ) );
+--      (16#0706050403020100#, 16#0f0e0d0c0b0a0908#)
+   In2    : constant Threefish.Block  := -- FFFEFDFCFBFAF9F8F7F6F5F4F3F2F1F0EFEEEDECEBEAE9E8E7E6E5E4E3E2E1E0
+      Threefish.Block_From_Bytes ( (16#FF#, 16#FE#, 16#FD#, 16#FC#, 16#FB#, 16#FA#, 16#F9#, 16#F8#,
+                                    16#F7#, 16#F6#, 16#F5#, 16#F4#, 16#F3#, 16#F2#, 16#F1#, 16#F0#,
+                                    16#EF#, 16#EE#, 16#ED#, 16#EC#, 16#EB#, 16#EA#, 16#E9#, 16#E8#,
+                                    16#E7#, 16#E6#, 16#E5#, 16#E4#, 16#E3#, 16#E2#, 16#E1#, 16#E0#) );
+--     (16#f8f9fafbfcfdfeff#, 16#f0f1f2f3f4f5f6f7#, 16#e8e9eaebecedeeef#, 16#e0e1e2e3e4e5e6e7#);
+   Out2   : constant Threefish.Block  := -- e0d091ff0eea8fdfc98192e62ed80ad59d865d08588df476657056b5955e97df
+      Threefish.Block_From_Bytes ( (16#e0#, 16#d0#, 16#91#, 16#ff#, 16#0e#, 16#ea#, 16#8f#, 16#df#,
+                                    16#c9#, 16#81#, 16#92#, 16#e6#, 16#2e#, 16#d8#, 16#0a#, 16#d5#,
+                                    16#9d#, 16#86#, 16#5d#, 16#08#, 16#58#, 16#8d#, 16#f4#, 16#76#,
+                                    16#65#, 16#70#, 16#56#, 16#b5#, 16#95#, 16#5e#, 16#97#, 16#df#) );
+--     (16#df8fea0eff91d0e0#, 16#d50ad82ee69281c9#, 16#76f48d58085d869d#, 16#df975e95b5567065#);
+   Key3   : constant Threefish.Block  := (1, 2, 4, 8);
+   Tweak3 : constant Threefish.Couple := (16, 32);
 
    function Image is new PragmARC.Images.Modular_Image (Number => Threefish.Word);
    function Image is new PragmARC.Images.Modular_Image (Number => Threefish.Byte);
@@ -83,7 +102,7 @@ begin -- Tf_Test
    Put (Text => Text);
    Ada.Text_IO.New_Line;
 
-   Text := (others => 16#4141414141414141#); -- All As
+   Text := (others => 16#4141414141414141#); -- All 'A's
    Threefish.Encrypt (Key_Schedule => Ks, Text => Text);
    Ada.Text_IO.Put (Item => "Encryption of (others => 16#4141414141414141#):");
    Put (Text => Text);
@@ -104,10 +123,11 @@ begin -- Tf_Test
    Ada.Text_IO.New_Line;
 
    declare
-      Ct : constant Threefish.Block_List := Threefish.Encrypt (Ks, (1 .. 31 => 16#41#) );
+      Ct : constant Threefish.Block_List := -- "ABCDEFGHIJKL"
+         Threefish.Encrypt (Ks, (16#41#, 16#42#, 16#43#, 16#44#, 16#45#, 16#46#, 16#47#, 16#48#, 16#49#, 16#50#, 16#51#, 16#52#) );
       Pt : constant Threefish.Byte_List  := Threefish.Decrypt (Ks, Ct);
    begin
-      Ada.Text_IO.Put (Item => "Encryption of (1 .. 31 => 16#41#):");
+      Ada.Text_IO.Put (Item => "Encryption of (16#41# .. 16#52#):");
       for I in Ct'Range loop
          Put (Text => Ct (I) );
          Ada.Text_IO.New_Line;
