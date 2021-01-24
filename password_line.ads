@@ -1,8 +1,9 @@
 -- Non-echoed input for obtaining passwords
--- Works on Linux; not tested on other platforms
--- Copyright (C) 2017 by PragmAda Software Engineering
+-- Works with GNAT/Linux and Windows; does not work with ObjectAda/Windows
+-- Copyright (C) 2021 by PragmAda Software Engineering
 --
 -- History:
+-- 2021 Feb 01     J. Carter          V1.1--Revised comments about what works
 -- 2017 Feb 01     J. Carter          V1.0--Initial release
 --
 function Password_Line (Echo : Boolean := True) return String;

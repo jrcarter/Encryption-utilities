@@ -1,16 +1,18 @@
 -- Encryptuion/dectryption of files with the Threefish cipher for blocks of 256 bits (Threefish-256)
--- Copyright (C) 2020 by PragmAda Software Engineering
+-- Copyright (C) 2021 by PragmAda Software Engineering
 -- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
 
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Sequential_IO;
 with Ada.Text_IO;
-with Password_Line;
 with Ada.Unchecked_Conversion;
-with Threefish;
+with Password_Line;
+with PragmARC.Encryption.Threefish;
 
 procedure TF_Crypt is
+   use PragmARC.Encryption;
+
    package Byte_IO is new Ada.Sequential_IO (Element_Type => Threefish.Byte);
 
    Bytes_Per_Block  : constant := 32;

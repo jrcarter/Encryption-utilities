@@ -1,8 +1,9 @@
 -- Non-echoed input for obtaining passwords
--- Works on Linux; not tested on other platforms
--- Copyright (C) 2017 by PragmAda Software Engineering
+-- Works with GNAT/Linux and Windows; does not work with ObjectAda/Windows
+-- Copyright (C) 2021 by PragmAda Software Engineering
 --
 -- History:
+-- 2021 Feb 01     J. Carter          V1.1--Improve backspace handling
 -- 2017 Feb 01     J. Carter          V1.0--Initial release
 --
 with Ada.Characters.Latin_1;
@@ -11,7 +12,9 @@ with Ada.Text_IO;
 
 function Password_Line (Echo : Boolean := True) return String is
    LF  : Character renames Ada.Characters.Latin_1.LF;
+   EOT : Character renames Ada.Characters.Latin_1.EOT;
    DEL : Character renames Ada.Characters.Latin_1.DEL;
+   BS  : Character renames Ada.Characters.Latin_1.BS;
 
    use Ada.Strings.Unbounded;
 
@@ -22,15 +25,15 @@ begin -- Password_Line
       Ada.Text_IO.Get_Immediate (Item => Ch);
 
       case Ch is
-      when LF =>
+      when LF | EOT =>
          Ada.Text_IO.New_Line;
 
          return To_String (Result);
-      when DEL =>
+      when DEL | BS =>
          Delete (Source => Result, From => Length (Result), Through => Length (Result) );
 
          if Echo then
-            Ada.Text_IO.Put (Item => Ch & ' ' & Ch);
+            Ada.Text_IO.Put (Item => BS & ' ' & BS);
          end if;
       when others =>
          Append (Source => Result, New_Item => Ch);
