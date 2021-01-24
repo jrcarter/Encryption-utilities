@@ -4,9 +4,11 @@
 
 with Ada.Text_IO;
 with PragmARC.Images;
-with Threefish;
+with PragmARC.Encryption.Threefish;
 
 procedure Tf_Test is
+   use PragmARC.Encryption;
+   
    Key1   : constant Threefish.Block  := (others => 0);
    Tweak1 : constant Threefish.Couple := (others => 0);
    In1    : constant Threefish.Block  := (others => 0);
