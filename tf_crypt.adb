@@ -1,4 +1,4 @@
--- Encryptuion/dectryption of files with the Threefish.Block_256 cipher for blocks of 256 bits (Threefish.Block_256-256)
+-- Encryptuion/dectryption of files with the Threefish-256 cipher for blocks of 256 bits (Threefish-256)
 -- Copyright (C) 2022 by PragmAda Software Engineering
 -- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
 
