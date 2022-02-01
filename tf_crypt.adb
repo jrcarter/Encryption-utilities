@@ -1,5 +1,5 @@
--- Encryptuion/dectryption of files with the Threefish cipher for blocks of 256 bits (Threefish-256)
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Encryptuion/dectryption of files with the Threefish.Block_256 cipher for blocks of 256 bits (Threefish.Block_256-256)
+-- Copyright (C) 2022 by PragmAda Software Engineering
 -- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
 
 with Ada.Command_Line;
@@ -8,7 +8,7 @@ with Ada.Sequential_IO;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with Password_Line;
-with PragmARC.Encryption.Threefish;
+with PragmARC.Encryption.Threefish.Block_256;
 
 procedure TF_Crypt is
    use PragmARC.Encryption;
@@ -18,25 +18,25 @@ procedure TF_Crypt is
    Bytes_Per_Block  : constant := 32;
    Bytes_Per_Couple : constant := 16;
 
-   subtype Block_As_Bytes is Threefish.Block_As_Bytes;
+   subtype Block_As_Bytes is Threefish.Block_256.Block_As_Bytes;
 
    subtype Block_As_String  is String (1 .. Bytes_Per_Block);
    subtype Couple_As_String is String (1 .. Bytes_Per_Couple);
 
-   function To_Block  (Source : Block_As_String)  return Threefish.Block;
+   function To_Block  (Source : Block_As_String)  return Threefish.Block_256.Block;
    function To_Couple (Source : Couple_As_String) return Threefish.Couple;
 
    procedure Usage; -- Displays usage instructions
 
-   procedure Encrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String); -- Encrypts Name using KS
-   procedure Decrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String); -- Decrypts Name using KS
+   procedure Encrypt (KS: in Threefish.Block_256.Key_Schedule_Handle; Name : in String); -- Encrypts Name using KS
+   procedure Decrypt (KS: in Threefish.Block_256.Key_Schedule_Handle; Name : in String); -- Decrypts Name using KS
 
-   function To_Block  (Source : Block_As_String)  return Threefish.Block is
+   function To_Block  (Source : Block_As_String)  return Threefish.Block_256.Block is
       function To_List is new Ada.Unchecked_Conversion (Source => Block_As_String, Target => Block_As_Bytes);
 
       List : constant Block_As_Bytes := To_List (Source);
    begin -- To_Block
-      return Threefish.Block_From_Bytes (List);
+      return Threefish.Block_256.Block_From_Bytes (List);
    end To_Block;
 
    function To_Couple (Source : Couple_As_String) return Threefish.Couple is
@@ -68,12 +68,12 @@ procedure TF_Crypt is
       Ada.Text_IO.Put_Line (Item => "      else the output file will be the same name as the input, with .tfd appended");
    end Usage;
 
-   procedure Encrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String) is
+   procedure Encrypt (KS: in Threefish.Block_256.Key_Schedule_Handle; Name : in String) is
       Input      : Byte_IO.File_Type;
       Output     : Byte_IO.File_Type;
       Length     : Threefish.Word_As_Bytes;
       Byte_Block : Block_As_Bytes;
-      Word_Block : Threefish.Block;
+      Word_Block : Threefish.Block_256.Block;
    begin -- Encrypt
       Byte_IO.Open (File => Input, Mode => Byte_IO.In_File, Name => Name);
       Byte_IO.Create (File => Output, Name => Name & ".tfe");
@@ -94,9 +94,9 @@ procedure TF_Crypt is
             Byte_IO.Read (File => Input, Item => Byte_Block (I) );
          end loop One_Block;
 
-         Word_Block := Threefish.Block_From_Bytes (Byte_Block);
-         Threefish.Encrypt (Key_Schedule => KS, Text => Word_Block);
-         Byte_Block := Threefish.Bytes_From_Block (Word_Block);
+         Word_Block := Threefish.Block_256.Block_From_Bytes (Byte_Block);
+         Threefish.Block_256.Encrypt (Key_Schedule => KS, Text => Word_Block);
+         Byte_Block := Threefish.Block_256.Bytes_From_Block (Word_Block);
 
          Write_Block : for I in Byte_Block'Range loop
             Byte_IO.Write (File => Output, Item => Byte_Block (I) );
@@ -107,14 +107,14 @@ procedure TF_Crypt is
       Byte_IO.Close (File => Output);
    end Encrypt;
 
-   procedure Decrypt (KS: in Threefish.Key_Schedule_Handle; Name : in String) is
+   procedure Decrypt (KS: in Threefish.Block_256.Key_Schedule_Handle; Name : in String) is
       Input      : Byte_IO.File_Type;
       Output     : Byte_IO.File_Type;
       Len_Bytes  : Threefish.Word_As_Bytes;
       Length     : Threefish.Word;
       Count      : Threefish.Word := 0;
       Byte_Block : Block_As_Bytes;
-      Word_Block : Threefish.Block;
+      Word_Block : Threefish.Block_256.Block;
 
       use type Threefish.Word;
    begin -- Decrypt
@@ -139,9 +139,9 @@ procedure TF_Crypt is
             Byte_IO.Read (File => Input, Item => Byte_Block (I) );
          end loop Read_Block;
 
-         Word_Block := Threefish.Block_From_Bytes (Byte_Block);
-         Threefish.Decrypt (Key_Schedule => KS, Text => Word_Block);
-         Byte_Block := Threefish.Bytes_From_Block (Word_Block);
+         Word_Block := Threefish.Block_256.Block_From_Bytes (Byte_Block);
+         Threefish.Block_256.Decrypt (Key_Schedule => KS, Text => Word_Block);
+         Byte_Block := Threefish.Block_256.Bytes_From_Block (Word_Block);
 
          Write_Bytes : for I in Byte_Block'Range loop
             exit Write_Bytes when Count >= Length;
@@ -157,9 +157,9 @@ procedure TF_Crypt is
 
    Encrypting : Boolean := True;
    Name_Arg   : Positive := 1;
-   Key        : Threefish.Block;
+   Key        : Threefish.Block_256.Block;
    Tweak      : Threefish.Couple;
-   KS         : Threefish.Key_Schedule_Handle;
+   KS         : Threefish.Block_256.Key_Schedule_Handle;
 
    use type Ada.Directories.File_Kind;
 begin -- TF_Crypt
@@ -193,7 +193,7 @@ begin -- TF_Crypt
       Tweak := To_Couple (Pass (Pass'First + Bytes_Per_Block .. Pass'First + Bytes_Per_Block + Bytes_Per_Couple - 1) );
    end Get_Passphrase;
 
-   Threefish.Create_Key_Schedule (Key => Key, Tweak => Tweak, Key_Schedule => KS);
+   Threefish.Block_256.Create_Key_Schedule (Key => Key, Tweak => Tweak, Key_Schedule => KS);
 
    if Encrypting then
       Encrypt (KS => KS, Name => Ada.Command_Line.Argument (Name_Arg) );
