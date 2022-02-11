@@ -10,6 +10,6 @@ TF_Crypt is a command-line program for encrypting and decrypting files with Thre
 
 Xcrypt is a command-line program for encrypting and decrypting files with XOR. It uses Password_Line. Since XOR is symmetrical, the same algorithm is used for encrypting and decrypting. One can encrypt twice with multiple keys, and decrypt with the keys in any order. This gives results equivalent to encrypting with a key length of the least common multiple of the lengths of the keys.
 
-Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has been tested and works with GNAT on Linux and Windows. It has been tested but does not work with ObjectAda on Windows. This version allows using an EOT (Ctrl-D) to terminate input, which does work with ObjectAda on Windows, but is not user friendly. However, it does allow TF_Crypt to be used by ObjectAda users.
+Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has been tested and works with GNAT on Linux and Windows and ObjectAda 10.3 on Windows.
 
 Tf_Test*, TF_Crypt, and Xcrypt are GPL-3; Password_Line is GMGPL.
