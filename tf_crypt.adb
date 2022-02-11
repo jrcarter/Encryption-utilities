@@ -1,4 +1,4 @@
--- Encryptuion/dectryption of files with the Threefish-256 cipher for blocks of 256 bits (Threefish-256)
+-- Encryptuion/dectryption of files with the Threefish cipher for blocks of 256 bits (Threefish-256)
 -- Copyright (C) 2022 by PragmAda Software Engineering
 -- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
 
@@ -59,7 +59,7 @@ procedure TF_Crypt is
    begin -- Usage
       Ada.Text_IO.Put_Line (Item => "usage: tf_crypt [-d] <file name>");
       Ada.Text_IO.Put_Line (Item => "   prompts the user to enter a passphrase");
-      Ada.Text_IO.Put_Line (Item => "   if -d decrypts <file name>, else encrypts <file name>");
+      Ada.Text_IO.Put_Line (Item => "   if -d given, decrypts <file name>, else encrypts <file name>");
       Ada.Text_IO.Put_Line (Item => "   the passphrase should be 48 characters, but it will be truncated");
       Ada.Text_IO.Put_Line (Item => "      or padded with X to achieve that length");
       Ada.Text_IO.Put_Line (Item => "   the output file when encrypting, will have the same name as the input, with .tfe appended");

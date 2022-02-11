@@ -1,8 +1,10 @@
 -- Non-echoed input for obtaining passwords
--- Works with GNAT/Linux and Windows; does not work with ObjectAda/Windows
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Works with GNAT/Linux and Windows and ObjectAda/Windows
+-- Copyright (C) 2022 by PragmAda Software Engineering
 --
 -- History:
+-- 2022 Feb 15     J. Carter          V1.3--OA 10.3 does not need a workaround
+-- 2021 May 15     J. Carter          V1.2--Mention OA workaround
 -- 2021 Feb 01     J. Carter          V1.1--Revised comments about what works
 -- 2017 Feb 01     J. Carter          V1.0--Initial release
 --
