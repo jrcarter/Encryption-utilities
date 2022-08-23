@@ -4,6 +4,7 @@
 
 with Ada.Command_Line;
 with Ada.Directories;
+with Ada.Numerics.Discrete_Random;
 with Ada.Sequential_IO;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
@@ -74,10 +75,15 @@ procedure TF_Crypt is
       Length     : Threefish.Word_As_Bytes;
       Byte_Block : Block_As_Bytes;
       Word_Block : Threefish.Block_256.Block;
+      Size       : Threefish.Word;
+      Written    : Threefish.Word := 0;
+
+      use type Threefish.Word;
    begin -- Encrypt
       Byte_IO.Open (File => Input, Mode => Byte_IO.In_File, Name => Name);
       Byte_IO.Create (File => Output, Name => Name & ".tfe");
-      Length := Threefish.Bytes_From_Word (Threefish.Word (Ada.Directories.Size (Name) ) );
+      Size := Threefish.Word (Ada.Directories.Size (Name) );
+      Length := Threefish.Bytes_From_Word (Size);
 
       Write_Length : for I in Length'Range loop
          Byte_IO.Write (File => Output, Item => Length (I) );
@@ -86,7 +92,16 @@ procedure TF_Crypt is
       All_Blocks : loop
          exit All_Blocks when Byte_IO.End_Of_File (Input);
 
-         Byte_Block := (others => 0);
+         if Size - Written < Bytes_Per_Block then -- Last block has unused bytes; fill them with random values
+            Random_Fill : declare
+               package Random is new Ada.Numerics.Discrete_Random (Result_Subtype => Threefish.Byte);
+
+               Gen : Random.Generator;
+            begin -- Random_Fill
+               Random.Reset (Gen => Gen);
+               Byte_Block := (others => Random.Random (Gen) );
+            end Random_Fill;
+         end if;
 
          One_Block : for I in Byte_Block'Range loop
             exit One_Block when Byte_IO.End_Of_File (Input);
@@ -100,6 +115,7 @@ procedure TF_Crypt is
 
          Write_Block : for I in Byte_Block'Range loop
             Byte_IO.Write (File => Output, Item => Byte_Block (I) );
+            Written := Written + 1;
          end loop Write_Block;
       end loop All_Blocks;
 
