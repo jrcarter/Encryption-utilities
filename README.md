@@ -12,4 +12,6 @@ Xcrypt is a command-line program for encrypting and decrypting files with XOR. I
 
 Password_Line is a function for obtaining secret input from a user without echoing it to the screen. It has been tested and works with GNAT on Linux and Windows and ObjectAda 10.3 on Windows.
 
-Tf_Test*, TF_Crypt, and Xcrypt are GPL-3; Password_Line is GMGPL.
+Skein_Test is a test program for the implementation of Skein hashing in the PragmAda Reusable Components. It hashes the test vectors in Appendix C of the Skein paper.
+
+Tf_Test*, TF_Crypt, Skein_Test, and Xcrypt are GPL-3; Password_Line is GMGPL.
