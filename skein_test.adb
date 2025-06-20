@@ -1,6 +1,9 @@
 -- Hash the test vectors in Appendix C of the Skein document
 -- Copyright (C) 2025 by PragmAda Software Engineering
--- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
+-- SPDX-License-Identifier: GPL-3.0-only
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 
 with Ada.Text_IO;
 with PragmARC.Encryption.Threefish;

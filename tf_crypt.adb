@@ -1,6 +1,9 @@
 -- Encryptuion/dectryption of files with the Threefish cipher for blocks of 256 bits (Threefish-256)
 -- Copyright (C) 2022 by PragmAda Software Engineering
--- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
+-- SPDX-License-Identifier: GPL-3.0-only
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 
 with Ada.Command_Line;
 with Ada.Directories;

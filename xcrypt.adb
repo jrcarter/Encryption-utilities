@@ -1,6 +1,9 @@
 -- Encryptuion/dectryption of files with the XOR cipher
 -- Copyright (C) 2021 by PragmAda Software Engineering
--- Released under the terms of the GPL license version 3; see https://opensource.org/licenses
+-- SPDX-License-Identifier: GPL-3.0-only
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 
 with Ada.Command_Line;
 with Ada.Directories;
@@ -49,4 +52,3 @@ begin -- Xcrypt
       Simple_XOR.Crypt (Input_Name => Ada.Command_Line.Argument (1), Output_Name => Output, Key => Simple_XOR.To_Bytes (Line) );
    end Get_Passphrase;
 end Xcrypt;
-
