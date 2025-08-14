@@ -47,7 +47,7 @@ procedure Tf_Test is
    Tweak3 : constant Threefish.Couple          := (16, 32);
 
    function Image is new PragmARC.Images.Modular_Image (Number => Threefish.Word);
-   function Image is new PragmARC.Images.Modular_Image (Number => Threefish.Byte);
+   function Image is new PragmARC.Images.Modular_Image (Number => PragmARC.Byte);
 
    procedure Put (Text : in Threefish.Block_256.Block); -- Outputs the images of the words ot Text on a single line
 
@@ -131,7 +131,7 @@ begin -- Tf_Test
       Ct : constant Threefish.Block_256.Block_List := -- "ABCDEFGHIJKL"
          Threefish.Block_256.Encrypt
             (Ks, (16#41#, 16#42#, 16#43#, 16#44#, 16#45#, 16#46#, 16#47#, 16#48#, 16#49#, 16#50#, 16#51#, 16#52#) );
-      Pt : constant Threefish.Byte_List := Threefish.Block_256.Decrypt (Ks, Ct);
+      Pt : constant PragmARC.Byte_List := Threefish.Block_256.Decrypt (Ks, Ct);
    begin
       Ada.Text_IO.Put (Item => "Encryption of (16#41# .. 16#52#):");
       for I in Ct'Range loop
